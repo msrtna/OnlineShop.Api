@@ -14,4 +14,9 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ShopRestApi.Application\ShopRestApi.Application.csproj" />
+    <ProjectReference Include="..\ShopRestApi.Infrastructure\ShopRestApi.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
