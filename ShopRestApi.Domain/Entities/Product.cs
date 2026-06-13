@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ShopRestApi.Domain.Entities
 {
-    internal class Product
+    public class Product
     {
         public int Id { get; set; }
 
