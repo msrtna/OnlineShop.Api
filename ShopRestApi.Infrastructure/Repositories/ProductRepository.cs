@@ -27,5 +27,17 @@ namespace ShopRestApi.Application.Repositories
             await _context.products.AddAsync(product);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(Product product)
+        {
+            _context.products.Update(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Product product)
+        {
+            _context.products.Remove(product);
+            await _context.SaveChangesAsync();
+        }
     }
 }

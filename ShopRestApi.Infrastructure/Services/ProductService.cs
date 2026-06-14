@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ShopRestApi.Application.DTOs.ProductsDtos;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Domain.Entities;
 
@@ -29,6 +30,32 @@ namespace ShopRestApi.Infrastructure.Services
         {
             product.CreatedAt = DateTime.UtcNow;
             await _repository.AddAsync(product);
+        }
+        public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
+        {
+            var product = await _repository.GetByIdAsync(id);
+            if (product is null)
+                return false;
+
+            product.Name = dto.Name;
+            product.Description = dto.Description;
+            product.Price = dto.Price;
+            product.StockQuantity = dto.StockQuantity;
+
+            await _repository.UpdateAsync(product);
+
+            return true;
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var product = await _repository.GetByIdAsync(id);
+
+            if (product is null)
+                return false;
+
+            await _repository.DeleteAsync(product);
+
+            return true;
         }
     }
 }
