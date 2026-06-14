@@ -1,8 +1,11 @@
 
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Application.Mappings;
 using ShopRestApi.Application.Repositories;
+using ShopRestApi.Application.Validators.Products;
 using ShopRestApi.Infrastructure.Persistence;
 using ShopRestApi.Infrastructure.Services;
 
@@ -16,7 +19,9 @@ namespace ShopRestApi.Api
 
             // Add services to the container.
             builder.Services.AddControllers();
-
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<UpdateProductDtoValidator>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddAutoMapper(typeof(ProductMappingProfile));
