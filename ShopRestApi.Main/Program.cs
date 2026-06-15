@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using ShopRestApi.Api.Exceptions;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Application.Mappings;
 using ShopRestApi.Application.Repositories;
@@ -19,6 +20,8 @@ namespace ShopRestApi.Api
 
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<UpdateProductDtoValidator>();
@@ -44,8 +47,9 @@ namespace ShopRestApi.Api
                 app.UseSwaggerUI();
             }
 
+            app.UseExceptionHandler();
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
