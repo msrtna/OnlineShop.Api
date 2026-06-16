@@ -1,4 +1,5 @@
-﻿using ShopRestApi.Domain.Entities;
+﻿using ShopRestApi.Application.Common.Models;
+using ShopRestApi.Domain.Entities;
 
 namespace ShopRestApi.Application.Interfaces
 {
@@ -9,5 +10,7 @@ namespace ShopRestApi.Application.Interfaces
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(Product product);
+
+        Task<PagedResult<Product>> GetPagedAsync(PaginationParameters parameters);
     }
 }

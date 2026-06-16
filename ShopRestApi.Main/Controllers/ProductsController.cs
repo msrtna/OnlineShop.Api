@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using ShopRestApi.Application.Common.Models;
 using ShopRestApi.Application.DTOs.ProductsDtos;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Domain.Entities;
@@ -66,6 +67,14 @@ namespace ShopRestApi.Api.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] PaginationParameters parameters)
+        {
+            var result = await _productService.GetPagedAsync(parameters);
+
+            return Ok(result);
         }
     }
 }

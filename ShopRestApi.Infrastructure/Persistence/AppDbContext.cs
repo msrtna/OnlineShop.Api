@@ -10,6 +10,6 @@ namespace ShopRestApi.Infrastructure.Persistence
 
         }
 
-        public DbSet<Product> products => Set<Product>();
+        public DbSet<Product> Products => Set<Product>();
     }
 }

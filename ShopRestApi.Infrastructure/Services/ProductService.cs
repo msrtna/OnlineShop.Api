@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using ShopRestApi.Application.Common.Models;
 using ShopRestApi.Application.DTOs.ProductsDtos;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Domain.Entities;
@@ -12,10 +9,11 @@ namespace ShopRestApi.Infrastructure.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repository;
-
-        public ProductService(IProductRepository repository)
+        private readonly IMapper _mapper;
+        public ProductService(IProductRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<List<Product>> GetAllAsync()
@@ -56,6 +54,19 @@ namespace ShopRestApi.Infrastructure.Services
             await _repository.DeleteAsync(product);
 
             return true;
+        }
+
+        public async Task<PagedResult<ProductDto>> GetPagedAsync(PaginationParameters parameters)
+        {
+            var result = await _repository.GetPagedAsync(parameters);
+
+            return new PagedResult<ProductDto>
+            {
+                Items = _mapper.Map<List<ProductDto>>(result.Items),
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalCount = result.TotalCount
+            };
         }
     }
 }
