@@ -50,7 +50,16 @@ namespace ShopRestApi.Application.Repositories
                     p.Name.Contains(parameters.Search) ||
                     p.Description.Contains(parameters.Search));
             }
-
+            if (parameters.MinPrice.HasValue)
+            {
+                query = query.Where(p =>
+                    p.Price >= parameters.MinPrice.Value);
+            }
+            if (parameters.MaxPrice.HasValue)
+            {
+                query = query.Where(p =>
+                    p.Price <= parameters.MaxPrice.Value);
+            }
             var totalCount = await query.CountAsync();
 
             var items = await query

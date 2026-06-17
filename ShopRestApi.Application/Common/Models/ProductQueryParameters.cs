@@ -9,5 +9,7 @@ namespace ShopRestApi.Application.Common.Models
     public class ProductQueryParameters : PaginationParameters
     {
         public string? Search { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
     }
 }
