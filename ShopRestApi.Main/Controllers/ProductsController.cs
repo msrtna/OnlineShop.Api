@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShopRestApi.Application.Common.Constants;
 using ShopRestApi.Application.Common.Models;
 using ShopRestApi.Application.DTOs.ProductsDtos;
 using ShopRestApi.Application.Interfaces;
@@ -29,6 +30,7 @@ namespace ShopRestApi.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -40,6 +42,7 @@ namespace ShopRestApi.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPost]
         public async Task<IActionResult> Create(CreateProductDto dto)
         {
@@ -49,6 +52,7 @@ namespace ShopRestApi.Api.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateProductDto dto)
         {
@@ -60,6 +64,7 @@ namespace ShopRestApi.Api.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = Roles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -71,6 +76,7 @@ namespace ShopRestApi.Api.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpGet("paged")]
         public async Task<IActionResult> GetPaged([FromQuery] ProductQueryParameters parameters)
         {

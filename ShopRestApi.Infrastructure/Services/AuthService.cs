@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ShopRestApi.Application.Common.Constants;
 using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.DTOs.Auth;
 using ShopRestApi.Application.Interfaces;
@@ -38,7 +39,7 @@ namespace ShopRestApi.Infrastructure.Services
                 throw new Exception("Invalid email or password.");
             }
 
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
 
             return new AuthResponseDto
             {
@@ -64,9 +65,9 @@ namespace ShopRestApi.Infrastructure.Services
             };
 
             var result =
-                await _userManager.CreateAsync(
-                    user,
-                    dto.Password);
+    await _userManager.CreateAsync(
+        user,
+        dto.Password);
 
             if (!result.Succeeded)
             {
@@ -76,10 +77,26 @@ namespace ShopRestApi.Infrastructure.Services
 
                 throw new Exception(errors);
             }
+
+            var roleResult =
+                await _userManager.AddToRoleAsync(
+                    user,
+                    Roles.Customer);
+
+            if (!roleResult.Succeeded)
+            {
+                var errors =
+                    string.Join(", ",
+                        roleResult.Errors.Select(e => e.Description));
+
+                throw new Exception(errors);
+            }
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
+            var roles = await _userManager.GetRolesAsync(user);
+
             var claims = new List<Claim>
             {
                 new Claim(
@@ -90,6 +107,11 @@ namespace ShopRestApi.Infrastructure.Services
                     ClaimTypes.Email,
                     user.Email!)
             };
+            claims.AddRange(
+                roles.Select(role =>
+                    new Claim(
+                        ClaimTypes.Role,
+                        role)));
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.Key));

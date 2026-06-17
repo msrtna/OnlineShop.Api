@@ -1,5 +1,6 @@
 
 using System.Text;
+using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,7 +21,7 @@ namespace ShopRestApi.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -124,7 +125,14 @@ namespace ShopRestApi.Api
             app.UseAuthentication();
             app.UseAuthorization();
 
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager =
+                    scope.ServiceProvider
+                        .GetRequiredService<RoleManager<IdentityRole>>();
 
+                await RoleSeeder.SeedAsync(roleManager);
+            }
             app.MapControllers();
 
             app.Run();
