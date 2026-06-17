@@ -4,6 +4,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShopRestApi.Api.Exceptions;
+using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Application.Mappings;
 using ShopRestApi.Application.Repositories;
@@ -40,6 +41,8 @@ namespace ShopRestApi.Api
                 .AddDefaultTokenProviders();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 
             builder.Services.AddOpenApi();
