@@ -1,12 +1,14 @@
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShopRestApi.Api.Exceptions;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Application.Mappings;
 using ShopRestApi.Application.Repositories;
 using ShopRestApi.Application.Validators.Products;
+using ShopRestApi.Infrastructure.Identity;
 using ShopRestApi.Infrastructure.Persistence;
 using ShopRestApi.Infrastructure.Services;
 
@@ -32,6 +34,10 @@ namespace ShopRestApi.Api
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services
+                .AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
 
