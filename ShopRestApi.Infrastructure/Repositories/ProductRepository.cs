@@ -60,10 +60,31 @@ namespace ShopRestApi.Application.Repositories
                 query = query.Where(p =>
                     p.Price <= parameters.MaxPrice.Value);
             }
+
             var totalCount = await query.CountAsync();
 
+            query = parameters.SortBy?.ToLower() switch
+            {
+                "name" => parameters.Descending
+                    ? query.OrderByDescending(p => p.Name)
+                    : query.OrderBy(p => p.Name),
+
+                "price" => parameters.Descending
+                    ? query.OrderByDescending(p => p.Price)
+                    : query.OrderBy(p => p.Price),
+
+                "stockquantity" => parameters.Descending
+                    ? query.OrderByDescending(p => p.StockQuantity)
+                    : query.OrderBy(p => p.StockQuantity),
+
+                "createdat" => parameters.Descending
+                    ? query.OrderByDescending(p => p.CreatedAt)
+                    : query.OrderBy(p => p.CreatedAt),
+
+                _ => query.OrderBy(p => p.Id)
+            };
+
             var items = await query
-                .OrderBy(p => p.Id)
                 .Skip((parameters.PageNumber - 1) * parameters.PageSize)
                 .Take(parameters.PageSize)
                 .ToListAsync();
