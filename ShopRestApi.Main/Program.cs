@@ -1,8 +1,11 @@
 
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ShopRestApi.Api.Exceptions;
 using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.Interfaces;
@@ -29,7 +32,38 @@ namespace ShopRestApi.Api
             builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<UpdateProductDtoValidator>();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition(
+                    "Bearer",
+                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                        Description = "Enter JWT Token"
+                    });
+
+                options.AddSecurityRequirement(
+                    new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                    {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference =
+                        new Microsoft.OpenApi.Models.OpenApiReference
+                        {
+                            Type =
+                                Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                },
+                Array.Empty<string>()
+            }
+                    });
+            });
             builder.Services.AddAutoMapper(typeof(ProductMappingProfile));
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -43,6 +77,35 @@ namespace ShopRestApi.Api
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+            var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+            builder.Services
+                        .AddAuthentication(options =>
+                        {
+                            options.DefaultAuthenticateScheme =
+                                JwtBearerDefaults.AuthenticationScheme;
+
+                            options.DefaultChallengeScheme =
+                                JwtBearerDefaults.AuthenticationScheme;
+                        })
+                        .AddJwtBearer(options =>
+                        {
+                            options.TokenValidationParameters =
+                                new TokenValidationParameters
+                                {
+                                    ValidateIssuer = true,
+                                    ValidateAudience = true,
+                                    ValidateLifetime = true,
+                                    ValidateIssuerSigningKey = true,
+
+                                    ValidIssuer = jwtSettings!.Issuer,
+                                    ValidAudience = jwtSettings.Audience,
+
+                                    IssuerSigningKey =
+                                        new SymmetricSecurityKey(
+                                            Encoding.UTF8.GetBytes(
+                                                jwtSettings.Key))
+                                };
+                        });
 
 
             builder.Services.AddOpenApi();

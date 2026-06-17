@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShopRestApi.Application.Common.Models;
 using ShopRestApi.Application.DTOs.ProductsDtos;
@@ -19,6 +20,7 @@ namespace ShopRestApi.Api.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
