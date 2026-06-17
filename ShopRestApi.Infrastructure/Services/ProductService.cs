@@ -56,7 +56,7 @@ namespace ShopRestApi.Infrastructure.Services
             return true;
         }
 
-        public async Task<PagedResult<ProductDto>> GetPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<ProductDto>> GetPagedAsync(ProductQueryParameters parameters)
         {
             var result = await _repository.GetPagedAsync(parameters);
 

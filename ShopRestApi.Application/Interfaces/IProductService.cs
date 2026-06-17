@@ -12,6 +12,6 @@ namespace ShopRestApi.Application.Interfaces
         Task<bool> UpdateAsync(int id, UpdateProductDto dto);
         Task<bool> DeleteAsync(int id);
 
-        Task<PagedResult<ProductDto>> GetPagedAsync(PaginationParameters parameters);
+        Task<PagedResult<ProductDto>> GetPagedAsync(ProductQueryParameters parameters);
     }
 }

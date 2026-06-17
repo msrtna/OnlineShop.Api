@@ -11,6 +11,6 @@ namespace ShopRestApi.Application.Interfaces
         Task UpdateAsync(Product product);
         Task DeleteAsync(Product product);
 
-        Task<PagedResult<Product>> GetPagedAsync(PaginationParameters parameters);
+        Task<PagedResult<Product>> GetPagedAsync(ProductQueryParameters parameters);
     }
 }

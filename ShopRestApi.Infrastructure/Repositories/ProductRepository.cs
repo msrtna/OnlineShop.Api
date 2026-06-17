@@ -41,11 +41,19 @@ namespace ShopRestApi.Application.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<PagedResult<Product>> GetPagedAsync(PaginationParameters parameters)
+        public async Task<PagedResult<Product>> GetPagedAsync(ProductQueryParameters parameters)
         {
-            var totalCount = await _context.Products.CountAsync();
+            IQueryable<Product> query = _context.Products.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(parameters.Search))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(parameters.Search) ||
+                    p.Description.Contains(parameters.Search));
+            }
 
-            var items = await _context.Products
+            var totalCount = await query.CountAsync();
+
+            var items = await query
                 .OrderBy(p => p.Id)
                 .Skip((parameters.PageNumber - 1) * parameters.PageSize)
                 .Take(parameters.PageSize)

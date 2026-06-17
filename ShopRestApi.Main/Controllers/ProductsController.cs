@@ -70,7 +70,7 @@ namespace ShopRestApi.Api.Controllers
         }
 
         [HttpGet("paged")]
-        public async Task<IActionResult> GetPaged([FromQuery] PaginationParameters parameters)
+        public async Task<IActionResult> GetPaged([FromQuery] ProductQueryParameters parameters)
         {
             var result = await _productService.GetPagedAsync(parameters);
 
