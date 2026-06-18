@@ -217,6 +217,190 @@ namespace ShopRestApi.Tests.Services
                 Times.Once);
         }
 
+        [Fact]
+        public async Task RefreshTokenAsync_ValidToken_ReturnsNewTokens()
+        {
+            // Arrange
 
+            var user = new ApplicationUser
+            {
+                Id = "1",
+                Email = "test@test.com",
+
+                RefreshToken = "OLD_TOKEN",
+
+                RefreshTokenExpiryTime =
+                    DateTime.UtcNow.AddDays(1)
+            };
+
+            var users =
+                new List<ApplicationUser>
+                {
+            user
+                }.AsQueryable();
+
+            _userManagerMock
+                .Setup(x => x.Users)
+                .Returns(users);
+
+            _userManagerMock
+                .Setup(x => x.GetRolesAsync(user))
+                .ReturnsAsync(
+                    new List<string>
+                    {
+                "Customer"
+                    });
+
+            _userManagerMock
+                .Setup(x => x.UpdateAsync(user))
+                .ReturnsAsync(
+                    IdentityResult.Success);
+
+            // Act
+
+            var result =
+                await _service.RefreshTokenAsync(
+                    new RefreshTokenRequestDto
+                    {
+                        RefreshToken =
+                            "OLD_TOKEN"
+                    });
+
+            // Assert
+
+            Assert.NotNull(result);
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    result.AccessToken));
+
+            Assert.False(
+                string.IsNullOrWhiteSpace(
+                    result.RefreshToken));
+
+            _userManagerMock.Verify(
+                x => x.UpdateAsync(user),
+                Times.Once);
+        }
+
+        [Fact]
+        public async Task RefreshTokenAsync_InvalidToken_ThrowsException()
+        {
+            // Arrange
+
+            var users =
+                new List<ApplicationUser>()
+                .AsQueryable();
+
+            _userManagerMock
+                .Setup(x => x.Users)
+                .Returns(users);
+
+            // Act + Assert
+
+            await Assert.ThrowsAsync<Exception>(
+                () =>
+                    _service.RefreshTokenAsync(
+                        new RefreshTokenRequestDto
+                        {
+                            RefreshToken =
+                                "INVALID_TOKEN"
+                        }));
+        }
+
+        [Fact]
+        public async Task RefreshTokenAsync_ExpiredToken_ThrowsException()
+        {
+            // Arrange
+
+            var user =
+                new ApplicationUser
+                {
+                    RefreshToken =
+                        "TOKEN",
+
+                    RefreshTokenExpiryTime =
+                        DateTime.UtcNow.AddDays(-1)
+                };
+
+            var users =
+                new List<ApplicationUser>
+                {
+            user
+                }.AsQueryable();
+
+            _userManagerMock
+                .Setup(x => x.Users)
+                .Returns(users);
+
+            // Act + Assert
+
+            await Assert.ThrowsAsync<Exception>(
+                () =>
+                    _service.RefreshTokenAsync(
+                        new RefreshTokenRequestDto
+                        {
+                            RefreshToken =
+                                "TOKEN"
+                        }));
+        }
+
+        [Fact]
+        public async Task RefreshTokenAsync_ShouldRotateRefreshToken()
+        {
+            // Arrange
+
+            var user = new ApplicationUser
+            {
+                Id = "1",
+                Email = "test@test.com",
+
+                RefreshToken = "OLD_TOKEN",
+
+                RefreshTokenExpiryTime =
+                    DateTime.UtcNow.AddDays(1)
+            };
+
+            var oldToken =
+                user.RefreshToken;
+
+            var users =
+                new List<ApplicationUser>
+                {
+            user
+                }.AsQueryable();
+
+            _userManagerMock
+                .Setup(x => x.Users)
+                .Returns(users);
+
+            _userManagerMock
+                .Setup(x => x.GetRolesAsync(user))
+                .ReturnsAsync(
+                    new List<string>
+                    {
+                "Customer"
+                    });
+
+            _userManagerMock
+                .Setup(x => x.UpdateAsync(user))
+                .ReturnsAsync(
+                    IdentityResult.Success);
+
+            // Act
+
+            await _service.RefreshTokenAsync(
+                new RefreshTokenRequestDto
+                {
+                    RefreshToken =
+                        "OLD_TOKEN"
+                });
+
+            // Assert
+
+            Assert.NotEqual(
+                oldToken,
+                user.RefreshToken);
+        }
     }
 }
