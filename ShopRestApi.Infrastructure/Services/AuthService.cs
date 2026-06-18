@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -23,7 +24,7 @@ namespace ShopRestApi.Infrastructure.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+        public async Task<TokenResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
@@ -38,12 +39,20 @@ namespace ShopRestApi.Infrastructure.Services
             {
                 throw new Exception("Invalid email or password.");
             }
+            var accessToken = await GenerateJwtToken(user);
+            var refreshToken = GenerateRefreshToken();
 
-            var token = await GenerateJwtToken(user);
+            user.RefreshToken = refreshToken;
 
-            return new AuthResponseDto
+            user.RefreshTokenExpiryTime =
+                DateTime.UtcNow.AddDays(7);
+
+            await _userManager.UpdateAsync(user);
+
+            return new TokenResponseDto
             {
-                Token = token
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
         }
 
@@ -131,6 +140,48 @@ namespace ShopRestApi.Infrastructure.Services
 
             return new JwtSecurityTokenHandler()
                 .WriteToken(token);
+        }
+
+        private static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[64];
+
+            using var rng = RandomNumberGenerator.Create();
+
+            rng.GetBytes(randomNumber);
+
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto dto)
+        {
+            var user = _userManager.Users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken);
+
+            if (user == null)
+            {
+                throw new Exception("Invalid refresh token.");
+            }
+
+            if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                throw new Exception("Refresh token expired.");
+            }
+
+            var newAccessToken = await GenerateJwtToken(user);
+
+            var newRefreshToken = GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+            await _userManager.UpdateAsync(user);
+
+            return new TokenResponseDto
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            };
         }
     }
 }
