@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using ShopRestApi.Api.Exceptions;
+using ShopRestApi.Api.Filters;
 using ShopRestApi.Api.Middleware;
 using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.Interfaces;
@@ -29,9 +30,13 @@ namespace ShopRestApi.Api
 
             // Add services to the container.
             builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<ValidationFilter>();
+            });
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
-            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
             builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<UpdateProductDtoValidator>();
             builder.Services.AddEndpointsApiExplorer();

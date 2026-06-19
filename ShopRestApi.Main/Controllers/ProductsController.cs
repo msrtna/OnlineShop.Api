@@ -27,7 +27,12 @@ namespace ShopRestApi.Api.Controllers
         {
             var products = await _productService.GetAllAsync();
             var result = _mapper.Map<List<ProductDto>>(products);
-            return Ok(result);
+            return Ok(new ApiResponse<List<ProductDto>>
+            {
+                Success = true,
+                Message = "Products retrieved successfully",
+                Data = products
+            });
         }
 
         [Authorize]
@@ -36,7 +41,14 @@ namespace ShopRestApi.Api.Controllers
         {
             var product = await _productService.GetByIdAsync(id);
             if (product == null)
-                return NotFound();
+            {
+                return NotFound(new ApiResponse<object>
+                {
+                    Success = false,
+                    Message = "Product not found",
+                    Errors = new List<string> { $"Id {id} does not exist" }
+                });
+            }
 
             var result = _mapper.Map<ProductDto>(product);
             return Ok(result);
@@ -48,7 +60,15 @@ namespace ShopRestApi.Api.Controllers
         {
             var result = await _productService.AddAsync(dto);
 
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            return CreatedAtAction(
+                    nameof(GetById),
+                    new { id = result.Id },
+                    new ApiResponse<ProductDto>
+                    {
+                        Success = true,
+                        Message = "Product created successfully",
+                        Data = result
+                    });
         }
 
         [Authorize(Roles = Roles.Admin)]
@@ -81,7 +101,11 @@ namespace ShopRestApi.Api.Controllers
         {
             var result = await _productService.GetPagedAsync(parameters);
 
-            return Ok(result);
+            return Ok(new ApiResponse<PagedResult<ProductDto>>
+            {
+                Success = true,
+                Data = result
+            });
         }
     }
 }
