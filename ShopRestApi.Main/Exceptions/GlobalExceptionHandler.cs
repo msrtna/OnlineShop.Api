@@ -31,6 +31,20 @@ public class GlobalExceptionHandler : IExceptionHandler
             Instance = httpContext.Request.Path
         };
 
+        var statusCode = exception switch
+        {
+            NotFoundException => StatusCodes.Status404NotFound,
+
+            _ => StatusCodes.Status500InternalServerError
+        };
+
+        var title = exception switch
+        {
+            NotFoundException => "Resource Not Found",
+
+            _ => "Internal Server Error"
+        };
+
         httpContext.Response.StatusCode = problemDetails.Status.Value;
 
         await httpContext.Response.WriteAsJsonAsync(

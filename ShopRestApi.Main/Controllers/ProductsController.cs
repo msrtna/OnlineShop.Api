@@ -44,17 +44,16 @@ namespace ShopRestApi.Api.Controllers
 
         [Authorize(Roles = Roles.Admin)]
         [HttpPost]
-        public async Task<IActionResult> Create(CreateProductDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
-            var product = _mapper.Map<Product>(dto);
-            await _productService.AddAsync(product);
-            var result = _mapper.Map<ProductDto>(product);
-            return Ok(result);
+            var result = await _productService.AddAsync(dto);
+
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [Authorize(Roles = Roles.Admin)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateProductDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
             var updated = await _productService.UpdateAsync(id, dto);
 

@@ -17,7 +17,8 @@ namespace ShopRestApi.Application.Common.Models
         public int TotalCount { get; set; }
 
         public int TotalPages =>
-            (int)Math.Ceiling((double)TotalCount / PageSize);
+                PageSize <= 0 ? 0
+                    : (int)Math.Ceiling((double)TotalCount / PageSize);
 
         public bool HasPrevious =>
             PageNumber > 1;

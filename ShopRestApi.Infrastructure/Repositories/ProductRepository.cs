@@ -43,12 +43,13 @@ namespace ShopRestApi.Application.Repositories
 
         public async Task<PagedResult<Product>> GetPagedAsync(ProductQueryParameters parameters)
         {
-            IQueryable<Product> query = _context.Products.AsQueryable();
+            IQueryable<Product> query = _context.Products.AsNoTracking().AsQueryable();
             if (!string.IsNullOrWhiteSpace(parameters.Search))
             {
                 query = query.Where(p =>
                     p.Name.Contains(parameters.Search) ||
-                    p.Description.Contains(parameters.Search));
+                    (p.Description != null &&
+                     p.Description.Contains(parameters.Search)));
             }
             if (parameters.MinPrice.HasValue)
             {

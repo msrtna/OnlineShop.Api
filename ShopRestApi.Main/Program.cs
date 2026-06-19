@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using ShopRestApi.Api.Exceptions;
 using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.Interfaces;
@@ -108,6 +109,17 @@ namespace ShopRestApi.Api
                                 };
                         });
 
+            builder.Host.UseSerilog((context, configuration) =>
+            {
+                configuration
+                    .MinimumLevel.Information()
+                    .WriteTo.Console()
+                    .WriteTo.File(
+                        path: "Logs/log-.txt",
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: 7,
+                        shared: true);
+            });
 
             builder.Services.AddOpenApi();
 
