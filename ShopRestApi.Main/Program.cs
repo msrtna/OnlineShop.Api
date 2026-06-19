@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using ShopRestApi.Api.Exceptions;
+using ShopRestApi.Api.Middleware;
 using ShopRestApi.Application.Common.Settings;
 using ShopRestApi.Application.Interfaces;
 using ShopRestApi.Application.Mappings;
@@ -145,6 +146,7 @@ namespace ShopRestApi.Api
 
                 await RoleSeeder.SeedAsync(roleManager);
             }
+            app.UseMiddleware<RequestLoggingMiddleware>();
             app.MapControllers();
 
             app.Run();
