@@ -29,9 +29,14 @@ namespace ShopRestApi.Infrastructure.Services
         {
             var product = await _repository.GetByIdAsync(id);
             if (product == null)
+            {
+                _logger.LogWarning(
+                    "Product not found: {ProductId}",
+                    id);
+
                 throw new NotFoundException(
                     $"Product {id} not found");
-            _logger.LogWarning("Product not found: {ProductId}", id);
+            }
             return _mapper.Map<ProductDto>(product);
         }
         public async Task<ProductDto> AddAsync(CreateProductDto dto)
