@@ -4,31 +4,33 @@ on:
   push:
     branches:
       - main
+      - develop
 
   pull_request:
     branches:
       - main
 
 jobs:
+
   build-and-test:
 
     runs-on: ubuntu-latest
 
     steps:
 
-    - name: Checkout source code
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Restore Packages
+        run: dotnet restore ShopRestApi.sln
 
-    - name: Build solution
-      run: dotnet build --no-restore --configuration Release
+      - name: Build Solution
+        run: dotnet build ShopRestApi.sln --no-restore --configuration Release
 
-    - name: Run tests
-      run: dotnet test --no-build --configuration Release
+      - name: Run Tests
+        run: dotnet test ShopRestApi.Tests/ShopRestApi.Tests.csproj --no-build --configuration Release
