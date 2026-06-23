@@ -145,9 +145,15 @@ namespace ShopRestApi.Api
 
             using (var scope = app.Services.CreateScope())
             {
+                var services = scope.ServiceProvider;
+
+                var dbContext =
+                    services.GetRequiredService<AppDbContext>();
+
+                await dbContext.Database.MigrateAsync();
+
                 var roleManager =
-                    scope.ServiceProvider
-                        .GetRequiredService<RoleManager<IdentityRole>>();
+                    services.GetRequiredService<RoleManager<IdentityRole>>();
 
                 await RoleSeeder.SeedAsync(roleManager);
             }

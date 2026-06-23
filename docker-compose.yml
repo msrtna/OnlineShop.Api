@@ -1,0 +1,35 @@
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shop-sql
+
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong@Pass123"
+
+    ports:
+      - "1433:1433"
+
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: shop-api
+
+    depends_on:
+      - sqlserver
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=ShopRestApiDb;User Id=sa;Password=YourStrong@Pass123;TrustServerCertificate=True"
+      ASPNETCORE_ENVIRONMENT: Development
+
+volumes:
+  sql_data:
